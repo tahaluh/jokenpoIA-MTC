@@ -9,9 +9,11 @@ import {
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Iconify from "../components/iconify";
+import MarkovIA, { GameMove } from "../utils/markov";
 
+const markovIa = new MarkovIA();
 export default function GamePage() {
-  const nJogadas = 10;
+  const nJogadas = 1000;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [aiPoints, setAIPoints] = useState<number>(0);
   const [jogadas, setJogadas] = useState<number[][]>([[], [], [], []]);
@@ -39,13 +41,15 @@ export default function GamePage() {
     ]);
   };
 
-  const handlePlay = (jogada: number) => {
+  const handlePlay = (jogada: GameMove) => {
     if (state >= 4) return;
     addJogada(jogada);
 
     if (jogadas[state].length + 1 >= nJogadas) {
       nextStep();
     }
+    console.log(markovIa.play(jogada));
+    console.log(markovIa.stats());
   };
 
   const playRock = () => {
