@@ -32,24 +32,54 @@ export default function GamePage() {
   };
 
   const addJogada = (jogada: number) => {
-    setJogadas((prev) => {
-      let tempJogadas = prev;
-      tempJogadas[state] = tempJogadas[state].concat(jogada);
-      console.log(tempJogadas);
-      return [...tempJogadas];
-    });
+    setJogadas((prev) => [
+      ...prev.map((prevItem, index) => {
+        return index == state ? [...prevItem.concat(jogada)] : [...prevItem];
+      }),
+    ]);
   };
 
   const handlePlay = (jogada: number) => {
+    if (state >= 5) return;
     addJogada(jogada);
-    if (jogadas[state].length >= nJogadas) {
+
+    console.log(jogadas);
+    if (jogadas[state].length + 1 >= nJogadas) {
       nextStep();
     }
   };
 
+  const playRock = () => {
+    handlePlay(0);
+  };
+  const playPaper = () => {
+    handlePlay(1);
+  };
+  const playScissors = () => {
+    handlePlay(2);
+  };
+
+  useEffect(() => {}, [jogadas]);
+
+  // utiliza os botões para jogar
+
   useEffect(() => {
-    console.log(jogadas);
-  }, [jogadas[state]]);
+    document.addEventListener("keydown", detectKeyDown, true);
+
+    return () => {
+      document.removeEventListener("keydown", detectKeyDown, true);
+    };
+  }, [jogadas]);
+
+  const detectKeyDown = (e: any) => {
+    if (e.key == 1) {
+      playRock();
+    } else if (e.key == 2) {
+      playPaper();
+    } else if (e.key == 3) {
+      playScissors();
+    }
+  };
 
   return (
     <>
@@ -114,9 +144,7 @@ export default function GamePage() {
                 <IconButton
                   color="inherit"
                   sx={{ border: "1px solid black" }}
-                  onClick={() => {
-                    handlePlay(0);
-                  }}
+                  onClick={playRock}
                 >
                   {(state == 0 || state == 1) && (
                     <Grid
@@ -138,9 +166,7 @@ export default function GamePage() {
                 <IconButton
                   color="inherit"
                   sx={{ border: "1px solid black" }}
-                  onClick={() => {
-                    handlePlay(1);
-                  }}
+                  onClick={playPaper}
                 >
                   {(state == 0 || state == 1) && (
                     <Grid
@@ -162,9 +188,7 @@ export default function GamePage() {
                 <IconButton
                   color="inherit"
                   sx={{ border: "1px solid black" }}
-                  onClick={() => {
-                    handlePlay(2);
-                  }}
+                  onClick={playScissors}
                 >
                   {(state == 0 || state == 1) && (
                     <Grid
