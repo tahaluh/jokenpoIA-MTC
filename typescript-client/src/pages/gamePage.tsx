@@ -40,10 +40,9 @@ export default function GamePage() {
   };
 
   const handlePlay = (jogada: number) => {
-    if (state >= 5) return;
+    if (state >= 4) return;
     addJogada(jogada);
 
-    console.log(jogadas);
     if (jogadas[state].length + 1 >= nJogadas) {
       nextStep();
     }
