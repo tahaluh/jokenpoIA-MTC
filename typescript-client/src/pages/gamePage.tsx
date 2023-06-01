@@ -3,6 +3,7 @@ import {
   Grid,
   IconButton,
   Input,
+  Link,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,7 +19,7 @@ let markovIA3 = new MarkovIA();
 let lstmIA = new LstmIA(10);
 
 export default function GamePage() {
-  const nJogadas = 500;
+  const nJogadas = 20;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [aiPoints, setAIPoints] = useState<number>(0);
   const [jogadas, setJogadas] = useState<number[][]>([[], [], [], []]);
@@ -29,10 +30,21 @@ export default function GamePage() {
   const [state, setState] = useState<number>(0);
   const [nome, setNome] = useState("");
 
+  const [timer, setTimer] = useState<number>(10);
+  // timer
+
+  useEffect(() => {
+    if (timer > 10) {
+      setTimer(10);
+    } else timer > 0 && setTimeout(() => setTimer((prev) => prev - 1), 1000);
+  }, [timer]);
+
   const nextStep = () => {
     setPlayerPoints(0);
     setAIPoints(0);
     setState(state + 1);
+    setWinLoseTie(0);
+    setTimer(10);
   };
 
   const addPlayerPoint = () => {
@@ -52,6 +64,12 @@ export default function GamePage() {
   };
 
   const addResultado = (resultado: number) => {
+    if (resultado == -1) {
+      addAiPoint();
+    } else if (resultado == 1) {
+      addPlayerPoint();
+    }
+
     setResultados((prev) => [
       ...prev.map((prevItem, index) => {
         return index == state ? [...prevItem.concat(resultado)] : [...prevItem];
@@ -77,7 +95,8 @@ export default function GamePage() {
     }
 
     addResultado(output.result);
-    setWinLoseTie(output.result);
+
+    if (state >= 2) setWinLoseTie(output.result);
 
     if (jogadas[state].length + 1 >= nJogadas) {
       let stats: statResponse;
@@ -145,7 +164,12 @@ export default function GamePage() {
   };
 
   useEffect(() => {
-    document.getRootNode();
+    document.documentElement.style.backgroundColor =
+      winLoseTie == -1 && state >= 2 && state <= 3
+        ? "#d32f2f"
+        : winLoseTie === 1 && state >= 2 && state <= 3
+        ? "#2e7d32"
+        : "white";
   }, [winLoseTie]);
 
   // utiliza os botões para jogar
@@ -187,7 +211,12 @@ export default function GamePage() {
           }}
         >
           <Grid item paddingX={3} borderTop={0}>
-            <Typography padding={1} fontSize={20} fontFamily={"cursive"}>
+            <Typography
+              color={winLoseTie == 0 ? "black" : "white"}
+              padding={1}
+              fontSize={20}
+              fontFamily={"cursive"}
+            >
               Você {`${playerPoints} - ${aiPoints}`} IA
             </Typography>
           </Grid>
@@ -200,14 +229,6 @@ export default function GamePage() {
         justifyContent="center"
         minHeight="100vh"
         spacing={6}
-        sx={{
-          backgroundColor:
-            winLoseTie == -1 && state >= 2 && state <= 3
-              ? "red"
-              : winLoseTie === 1 && state >= 2 && state <= 3
-              ? "green"
-              : "white",
-        }}
       >
         {state <= 3 && (
           <Grid
@@ -221,7 +242,80 @@ export default function GamePage() {
             flexDirection="row"
             gap={5}
           >
-            <Typography>Total: {jogadas[state].length}</Typography>
+            <Typography
+              color={winLoseTie == 0 ? "black" : "white"}
+              variant="overline"
+              fontSize={20}
+            >
+              Total: {jogadas[state].length}
+            </Typography>
+          </Grid>
+        )}
+        {state <= 3 && (
+          <Grid
+            item
+            container
+            xs={6}
+            justifyContent="center"
+            textAlign="center"
+            flexDirection={"column"}
+            padding={3}
+            paddingTop={0}
+            borderRadius={10}
+            sx={{
+              ...(winLoseTie != 0
+                ? { backgroundColor: "rgba(0,0,0,0.50)" }
+                : {}),
+            }}
+          >
+            <Typography
+              variant="caption"
+              fontSize={15}
+              color={winLoseTie == 0 ? "black" : "white"}
+            >
+              {state === 0
+                ? `Aperte os botões ${nJogadas} vezes.`
+                : state == 1
+                ? `Segunda etapa, aperte os botões ${nJogadas} vezes da forma mais aleatória possível.`
+                : state == 2
+                ? `Terceira etapa, você jogará ${nJogadas} partidas de "pedra, papel tesoura" contra a máquina, tente ganhar ao máximo.`
+                : `Quarta etapa, você jogará ${nJogadas} partidas de "pedra, papel tesoura" contra a máquina, tente ganhar ao máximo.`}
+            </Typography>
+            {state >= 2 && (
+              <Typography variant="caption" fontSize={15}>
+                <Typography
+                  variant="caption"
+                  fontSize={15}
+                  color={"green"}
+                  fontWeight={700}
+                >
+                  Verde - vitória,{" "}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  fontSize={15}
+                  color={"error"}
+                  fontWeight={700}
+                >
+                  Vermelho - derrota,{" "}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  fontSize={15}
+                  color={winLoseTie == 0 ? "black" : "white"}
+                  fontWeight={700}
+                >
+                  Branco - empate.
+                </Typography>
+              </Typography>
+            )}
+            <Typography
+              variant="caption"
+              fontSize={15}
+              color={winLoseTie == 0 ? "black" : "white"}
+            >
+              {"Teclado numérico - pedra : 1, papel : 2, tesoura: 3"}
+            </Typography>
           </Grid>
         )}
         <Grid
@@ -229,8 +323,6 @@ export default function GamePage() {
           container
           xs={8}
           md={6}
-          lg={4}
-          xl={3}
           justifyContent="center"
           flexDirection="row"
           gap={5}
@@ -240,7 +332,9 @@ export default function GamePage() {
               <Grid item justifyContent="center">
                 <IconButton
                   color="inherit"
-                  sx={{ border: "1px solid black" }}
+                  sx={{
+                    border: `1px solid ${winLoseTie == 0 ? "black" : "white"}`,
+                  }}
                   onClick={playRock}
                 >
                   {(state == 0 || state == 1) && (
@@ -255,14 +349,20 @@ export default function GamePage() {
                     </Grid>
                   )}
                   {(state === 2 || state == 3) && (
-                    <Iconify icon="la:hand-rock-solid" width="75px" />
+                    <Iconify
+                      color={winLoseTie == 0 ? "black" : "white"}
+                      icon="la:hand-rock-solid"
+                      width="75px"
+                    />
                   )}
                 </IconButton>
               </Grid>
               <Grid item justifyContent="center">
                 <IconButton
                   color="inherit"
-                  sx={{ border: "1px solid black" }}
+                  sx={{
+                    border: `1px solid ${winLoseTie == 0 ? "black" : "white"}`,
+                  }}
                   onClick={playPaper}
                 >
                   {(state == 0 || state == 1) && (
@@ -277,14 +377,20 @@ export default function GamePage() {
                     </Grid>
                   )}
                   {(state === 2 || state == 3) && (
-                    <Iconify icon="la:hand-paper-solid" width="75px" />
+                    <Iconify
+                      color={winLoseTie == 0 ? "black" : "white"}
+                      icon="la:hand-paper-solid"
+                      width="75px"
+                    />
                   )}
                 </IconButton>
               </Grid>
               <Grid item justifyContent="center">
                 <IconButton
                   color="inherit"
-                  sx={{ border: "1px solid black" }}
+                  sx={{
+                    border: `1px solid ${winLoseTie == 0 ? "black" : "white"}`,
+                  }}
                   onClick={playScissors}
                 >
                   {(state == 0 || state == 1) && (
@@ -299,7 +405,11 @@ export default function GamePage() {
                     </Grid>
                   )}{" "}
                   {(state === 2 || state == 3) && (
-                    <Iconify icon="la:hand-scissors-solid" width="75px" />
+                    <Iconify
+                      color={winLoseTie == 0 ? "black" : "white"}
+                      icon="la:hand-scissors-solid"
+                      width="75px"
+                    />
                   )}
                 </IconButton>
               </Grid>
@@ -308,6 +418,26 @@ export default function GamePage() {
 
           {state >= 4 && (
             <>
+              <Grid
+                item
+                container
+                xs={8}
+                justifyContent="center"
+                textAlign="center"
+              >
+                <Typography variant="caption" fontSize={15}>
+                  Por favor, insira seu nome, clique em "Baixar" e envie o
+                  arquivo nesse{" "}
+                  <Link
+                    href="https://www.google.com/webhp?hl=pt-BR&ictx=2&sa=X&ved=0ahUKEwjgsM-ixdHmAhUrELkGHad0CWMQPQgH"
+                    variant="overline"
+                    fontSize={20}
+                    target="_blank"
+                  >
+                    link
+                  </Link>
+                </Typography>
+              </Grid>
               <Grid item container xs={12} justifyContent="center">
                 <TextField
                   fullWidth
