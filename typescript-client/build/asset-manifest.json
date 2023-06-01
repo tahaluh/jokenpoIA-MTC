@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.js": "/jokenpoIA-MTC/static/js/main.4e0a94e8.js",
-    "static/js/74.4fad5677.chunk.js": "/jokenpoIA-MTC/static/js/74.4fad5677.chunk.js",
-    "static/js/663.8f7a99c8.chunk.js": "/jokenpoIA-MTC/static/js/663.8f7a99c8.chunk.js",
-    "index.html": "/jokenpoIA-MTC/index.html",
-    "main.4e0a94e8.js.map": "/jokenpoIA-MTC/static/js/main.4e0a94e8.js.map",
-    "74.4fad5677.chunk.js.map": "/jokenpoIA-MTC/static/js/74.4fad5677.chunk.js.map",
-    "663.8f7a99c8.chunk.js.map": "/jokenpoIA-MTC/static/js/663.8f7a99c8.chunk.js.map"
+    "main.js": "/jokenpoIA-MTC/typescript-client/build/static/js/main.98dc431a.js",
+    "static/js/74.4fad5677.chunk.js": "/jokenpoIA-MTC/typescript-client/build/static/js/74.4fad5677.chunk.js",
+    "static/js/663.8f7a99c8.chunk.js": "/jokenpoIA-MTC/typescript-client/build/static/js/663.8f7a99c8.chunk.js",
+    "index.html": "/jokenpoIA-MTC/typescript-client/build/index.html",
+    "main.98dc431a.js.map": "/jokenpoIA-MTC/typescript-client/build/static/js/main.98dc431a.js.map",
+    "74.4fad5677.chunk.js.map": "/jokenpoIA-MTC/typescript-client/build/static/js/74.4fad5677.chunk.js.map",
+    "663.8f7a99c8.chunk.js.map": "/jokenpoIA-MTC/typescript-client/build/static/js/663.8f7a99c8.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.4e0a94e8.js"
+    "static/js/main.98dc431a.js"
   ]
 }
