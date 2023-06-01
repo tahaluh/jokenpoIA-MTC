@@ -26,6 +26,8 @@ export default class LstmAI {
   playerMoves: GameMove[] = [];
   memorySize: number = 5;
 
+  net = new brain.recurrent.LSTMTimeStep();
+
   constructor(memorySize: number) {
     this.memorySize = memorySize;
   }
@@ -74,13 +76,10 @@ export default class LstmAI {
     });
     if (trainData.length > this.memorySize)
       trainData = trainData.slice(trainData.length - this.memorySize);
-    console.log(trainData);
-    const net = new brain.recurrent.LSTMTimeStep();
-    net.train([trainData], {
+    this.net.train([trainData], {
       iterations: 100,
     });
-    const predictedPlayerMove = net.run(trainData);
-    console.log(predictedPlayerMove);
+    const predictedPlayerMove = this.net.run(trainData);
 
     const roundedPlayerMove = Math.round(predictedPlayerMove - 1);
 

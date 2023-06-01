@@ -43,6 +43,7 @@ export default function GamePage() {
     if (jogadas[state].length + 1 >= nJogadas) {
       nextStep();
     }
+    console.log(lstmIA.stats());
     console.log("resultado: ", lstmIA.play(jogada).result, "\n\n\n\n\n\n");
   };
 
