@@ -19,7 +19,7 @@ let markovIA3 = new MarkovIA();
 let lstmIA = new LstmIA(10);
 
 export default function GamePage() {
-  const nJogadas = 20;
+  const nJogadas = 500;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [aiPoints, setAIPoints] = useState<number>(0);
   const [jogadas, setJogadas] = useState<number[][]>([[], [], [], []]);
@@ -436,7 +436,7 @@ export default function GamePage() {
                   Por favor, insira seu nome, clique em "Baixar" e envie o
                   arquivo nesse{" "}
                   <Link
-                    href="https://www.google.com/webhp?hl=pt-BR&ictx=2&sa=X&ved=0ahUKEwjgsM-ixdHmAhUrELkGHad0CWMQPQgH"
+                    href="https://forms.gle/SYnaBcQS8rAhTJGA6"
                     variant="overline"
                     fontSize={20}
                     target="_blank"
