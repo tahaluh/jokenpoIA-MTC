@@ -12,7 +12,7 @@ interface playResponse {
   result: gameResult;
 }
 
-interface statResponse {
+export interface statResponse {
   nOfWins: number;
   nOfTies: number;
   nOfLoses: number;

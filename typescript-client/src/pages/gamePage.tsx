@@ -2,19 +2,25 @@ import { Grid, IconButton, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Iconify from "../components/iconify";
-import MarkovIA, { GameMove } from "../utils/markov";
+import MarkovIA, { GameMove, statResponse } from "../utils/markov";
 import LstmIA from "../utils/lstm";
 
 let markovIA = new MarkovIA();
 let markovIA2 = new MarkovIA();
 let markovIA3 = new MarkovIA();
 let lstmIA = new LstmIA(10);
+
 export default function GamePage() {
-  const nJogadas = 500;
+  const nJogadas = 50;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [aiPoints, setAIPoints] = useState<number>(0);
   const [jogadas, setJogadas] = useState<number[][]>([[], [], [], []]);
+  const [resultados, setResultados] = useState<number[][]>([[], [], [], []]);
+  const [winLoseTie, setWinLoseTie] = useState<number>(0);
+  const [stats, setStats] = useState<statResponse[]>([]);
+
   const [state, setState] = useState<number>(0);
+  const [nome, setNome] = useState("");
 
   const nextStep = () => {
     setPlayerPoints(0);
@@ -38,21 +44,49 @@ export default function GamePage() {
     ]);
   };
 
+  const addResultado = (resultado: number) => {
+    setResultados((prev) => [
+      ...prev.map((prevItem, index) => {
+        return index == state ? [...prevItem.concat(resultado)] : [...prevItem];
+      }),
+    ]);
+  };
+
   const handlePlay = (jogada: GameMove) => {
     if (state >= 4) return;
     addJogada(jogada);
+    let output;
 
     if (state == 0) {
-      markovIA.play(jogada);
+      output = markovIA.play(jogada);
     } else if (state == 1) {
-      markovIA2.play(jogada);
+      output = markovIA2.play(jogada);
     } else if (state == 2) {
-      markovIA3.play(jogada);
+      output = markovIA3.play(jogada);
     } else if (state == 3) {
-      lstmIA.play(jogada);
+      output = lstmIA.play(jogada);
+    } else {
+      return;
     }
 
+    addResultado(output.result);
+
     if (jogadas[state].length + 1 >= nJogadas) {
+      let stats: statResponse;
+      if (state == 0) {
+        stats = markovIA.stats();
+      } else if (state == 1) {
+        stats = markovIA2.stats();
+      } else if (state == 2) {
+        stats = markovIA3.stats();
+      } else if (state == 3) {
+        stats = lstmIA.stats();
+      } else {
+        return;
+      }
+
+      setStats((prev) => prev.concat(stats));
+
       nextStep();
     }
   };
@@ -65,6 +99,24 @@ export default function GamePage() {
   };
   const playScissors = () => {
     handlePlay(2);
+  };
+
+  const handleSubmit = () => {
+    let resultList = {
+      games: jogadas.map((state, stateIndex) => {
+        return {
+          rounds: state.map((jogada, jogadaIndex) => {
+            return {
+              playerMove: jogada,
+              result: resultados[stateIndex][jogadaIndex],
+            };
+          }),
+          stats: stats[stateIndex],
+        };
+      }),
+      playerName: nome ? nome : "guest",
+    };
+    console.log(resultList);
   };
 
   useEffect(() => {}, [jogadas]);
@@ -86,6 +138,8 @@ export default function GamePage() {
       playPaper();
     } else if (e.key == 3) {
       playScissors();
+    } else if (e.key == 4) {
+      handleSubmit();
     }
   };
 
