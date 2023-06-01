@@ -1,17 +1,12 @@
-import {
-  Box,
-  Button,
-  ButtonBase,
-  Grid,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Iconify from "../components/iconify";
 import MarkovIA, { GameMove } from "../utils/markov";
+import LstmIA from "../utils/lstm";
 
-const markovIa = new MarkovIA();
+let markovIA = new MarkovIA();
+let lstmIA = new LstmIA(10);
 export default function GamePage() {
   const nJogadas = 1000;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
@@ -48,8 +43,7 @@ export default function GamePage() {
     if (jogadas[state].length + 1 >= nJogadas) {
       nextStep();
     }
-    console.log(markovIa.play(jogada));
-    console.log(markovIa.stats());
+    console.log("resultado: ", lstmIA.play(jogada).result, "\n\n\n\n\n\n");
   };
 
   const playRock = () => {
