@@ -6,9 +6,11 @@ import MarkovIA, { GameMove } from "../utils/markov";
 import LstmIA from "../utils/lstm";
 
 let markovIA = new MarkovIA();
+let markovIA2 = new MarkovIA();
+let markovIA3 = new MarkovIA();
 let lstmIA = new LstmIA(10);
 export default function GamePage() {
-  const nJogadas = 1000;
+  const nJogadas = 500;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [aiPoints, setAIPoints] = useState<number>(0);
   const [jogadas, setJogadas] = useState<number[][]>([[], [], [], []]);
@@ -40,11 +42,19 @@ export default function GamePage() {
     if (state >= 4) return;
     addJogada(jogada);
 
+    if (state == 0) {
+      markovIA.play(jogada);
+    } else if (state == 1) {
+      markovIA2.play(jogada);
+    } else if (state == 2) {
+      markovIA3.play(jogada);
+    } else if (state == 3) {
+      lstmIA.play(jogada);
+    }
+
     if (jogadas[state].length + 1 >= nJogadas) {
       nextStep();
     }
-    console.log(lstmIA.stats());
-    console.log("resultado: ", lstmIA.play(jogada).result, "\n\n\n\n\n\n");
   };
 
   const playRock = () => {

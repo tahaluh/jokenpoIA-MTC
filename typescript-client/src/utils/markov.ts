@@ -143,7 +143,5 @@ export default class MarkovIA {
       this.nOfTies += 1;
     }
     this.nOfRounds++;
-
-    console.log("esse foi o round: ", this.nOfRounds, "\n\n");
   }
 }
