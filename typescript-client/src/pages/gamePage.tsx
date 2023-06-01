@@ -31,12 +31,16 @@ export default function GamePage() {
   const [nome, setNome] = useState("");
 
   const [timer, setTimer] = useState<number>(10);
+  const intervalTime = 10;
   // timer
 
   useEffect(() => {
-    if (timer > 10) {
-      setTimer(10);
+    if (timer > intervalTime) {
+      setTimer(intervalTime);
     } else timer > 0 && setTimeout(() => setTimer((prev) => prev - 1), 1000);
+    if (timer == 0) {
+      setJogadas((prev) => [...prev]);
+    }
   }, [timer]);
 
   const nextStep = () => {
@@ -44,7 +48,7 @@ export default function GamePage() {
     setAIPoints(0);
     setState(state + 1);
     setWinLoseTie(0);
-    setTimer(10);
+    setTimer(intervalTime);
   };
 
   const addPlayerPoint = () => {
@@ -78,7 +82,7 @@ export default function GamePage() {
   };
 
   const handlePlay = (jogada: GameMove) => {
-    if (state >= 4) return;
+    if (state >= 4 || timer > 0) return;
     addJogada(jogada);
     let output;
 
@@ -228,28 +232,31 @@ export default function GamePage() {
         alignItems="center"
         justifyContent="center"
         minHeight="100vh"
-        spacing={6}
+        spacing={4}
       >
         {state <= 3 && (
-          <Grid
-            item
-            container
-            xs={8}
-            md={6}
-            lg={4}
-            xl={3}
-            justifyContent="center"
-            flexDirection="row"
-            gap={5}
-          >
-            <Typography
-              color={winLoseTie == 0 ? "black" : "white"}
-              variant="overline"
-              fontSize={20}
+          <>
+            <Grid
+              item
+              container
+              xs={8}
+              md={6}
+              lg={4}
+              xl={3}
+              justifyContent="center"
+              flexDirection="row"
             >
-              Total: {jogadas[state].length}
-            </Typography>
-          </Grid>
+              <Typography
+                color={winLoseTie == 0 ? "black" : "white"}
+                variant="overline"
+                fontSize={20}
+              >
+                {!!timer
+                  ? `A ${state + 1}° etapa começa em: ${timer}...`
+                  : `Total: ${jogadas[state].length}`}
+              </Typography>
+            </Grid>
+          </>
         )}
         {state <= 3 && (
           <Grid
