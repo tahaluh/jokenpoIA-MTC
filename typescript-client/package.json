@@ -2,7 +2,7 @@
   "name": "typescript-client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://tahaluh.github.io/jokenpoIA-MTC/typescript-client/build",
+  "homepage": "jokenpo-ia-mtc.vercel.app",
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
