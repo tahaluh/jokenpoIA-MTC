@@ -316,13 +316,24 @@ export default function GamePage() {
                 </Typography>
               </Typography>
             )}
-            <Typography
-              variant="caption"
-              fontSize={15}
-              color={winLoseTie == 0 ? "black" : "white"}
-            >
-              {"Teclado numérico - pedra : 1, papel : 2, tesoura: 3"}
-            </Typography>
+            {state >= 2 && (
+              <Typography
+                variant="caption"
+                fontSize={15}
+                color={winLoseTie == 0 ? "black" : "white"}
+              >
+                {"Teclado numérico - pedra : 1, papel : 2, tesoura: 3"}
+              </Typography>
+            )}
+            {state <= 2 && (
+              <Typography
+                variant="caption"
+                fontSize={15}
+                color={winLoseTie == 0 ? "black" : "white"}
+              >
+                {"Teclado numérico 1, 2, 3"}
+              </Typography>
+            )}
           </Grid>
         )}
         <Grid
