@@ -18,7 +18,7 @@ let markovIA3 = new MarkovIA();
 let lstmIA = new LstmIA(10);
 
 export default function GamePage() {
-  const nJogadas = 50;
+  const nJogadas = 500;
   const [playerPoints, setPlayerPoints] = useState<number>(0);
   const [aiPoints, setAIPoints] = useState<number>(0);
   const [jogadas, setJogadas] = useState<number[][]>([[], [], [], []]);
