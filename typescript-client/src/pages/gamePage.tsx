@@ -70,6 +70,7 @@ export default function GamePage() {
     }
 
     addResultado(output.result);
+    setWinLoseTie(output.result);
 
     if (jogadas[state].length + 1 >= nJogadas) {
       let stats: statResponse;
@@ -117,9 +118,27 @@ export default function GamePage() {
       playerName: nome ? nome : "guest",
     };
     console.log(resultList);
+    var dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(resultList));
+
+    var dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(resultList));
+    var downloadAnchorNode = document.createElement("a");
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute(
+      "download",
+      (nome ? nome : "guest") + ".json"
+    );
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
   };
 
-  useEffect(() => {}, [jogadas]);
+  useEffect(() => {
+    document.getRootNode();
+  }, [winLoseTie]);
 
   // utiliza os botões para jogar
 
@@ -173,6 +192,14 @@ export default function GamePage() {
         justifyContent="center"
         minHeight="100vh"
         spacing={6}
+        sx={{
+          backgroundColor:
+            winLoseTie == -1 && state >= 2
+              ? "red"
+              : winLoseTie === 1 && state >= 2
+              ? "green"
+              : "white",
+        }}
       >
         {state <= 3 && (
           <Grid
