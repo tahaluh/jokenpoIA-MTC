@@ -1,4 +1,11 @@
-import { Grid, IconButton, Typography } from "@mui/material";
+import {
+  Button,
+  Grid,
+  IconButton,
+  Input,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Iconify from "../components/iconify";
@@ -118,6 +125,7 @@ export default function GamePage() {
       playerName: nome ? nome : "guest",
     };
     console.log(resultList);
+    console.log(nome);
     var dataStr =
       "data:text/json;charset=utf-8," +
       encodeURIComponent(JSON.stringify(resultList));
@@ -157,7 +165,7 @@ export default function GamePage() {
       playPaper();
     } else if (e.key == 3) {
       playScissors();
-    } else if (e.key == 4) {
+    } else if (e.key == 8) {
       handleSubmit();
     }
   };
@@ -194,9 +202,9 @@ export default function GamePage() {
         spacing={6}
         sx={{
           backgroundColor:
-            winLoseTie == -1 && state >= 2
+            winLoseTie == -1 && state >= 2 && state <= 3
               ? "red"
-              : winLoseTie === 1 && state >= 2
+              : winLoseTie === 1 && state >= 2 && state <= 3
               ? "green"
               : "white",
         }}
@@ -294,6 +302,33 @@ export default function GamePage() {
                     <Iconify icon="la:hand-scissors-solid" width="75px" />
                   )}
                 </IconButton>
+              </Grid>
+            </>
+          )}
+
+          {state >= 4 && (
+            <>
+              <Grid item container xs={12} justifyContent="center">
+                <TextField
+                  fullWidth
+                  placeholder="Insira seu nome..."
+                  label="Nome"
+                  value={nome}
+                  onChange={(e) => {
+                    setNome(e.target.value);
+                  }}
+                />
+              </Grid>
+              <Grid item container xs={12} justifyContent="center">
+                <Button
+                  variant="contained"
+                  color="success"
+                  fullWidth
+                  size="large"
+                  onClick={handleSubmit}
+                >
+                  Baixar
+                </Button>
               </Grid>
             </>
           )}
