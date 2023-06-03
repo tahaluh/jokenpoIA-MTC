@@ -5,8 +5,8 @@ interface probabilitiesRPS {
 }
 
 export type GameMove = 0 | 1 | 2;
+export type gameResult = -1 | 0 | 1;
 type TransitionMatrix = number[][];
-type gameResult = -1 | 0 | 1;
 
 interface playResponse {
   result: gameResult;
