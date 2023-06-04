@@ -6,6 +6,8 @@ interface probabilitiesRPS {
 
 export type GameMove = 0 | 1 | 2;
 export type gameResult = -1 | 0 | 1;
+
+type nOfMatrix = 1 | 3;
 type TransitionMatrix = number[][];
 
 interface playResponse {
@@ -41,7 +43,13 @@ export default class MarkovIA {
   nOfTies: number = 0;
   nOfRounds: number = 0;
 
-  constructor() {}
+  nOfMatrix: nOfMatrix = 3;
+
+  constructor(nOfMatrix?: nOfMatrix) {
+    if (nOfMatrix) {
+      this.nOfMatrix = nOfMatrix;
+    }
+  }
 
   public play(playerMove: GameMove): playResponse {
     if (this.nOfRounds > 0) {
@@ -52,7 +60,7 @@ export default class MarkovIA {
     let iaMove = this.calcIAMove();
     let result = this.checkResult(playerMove, iaMove);
     this.prevPlayerMove = playerMove;
-    this.prevResult = result;
+    this.prevResult = this.nOfMatrix == 3 ? result : 1;
     return { result };
   }
   public stats(): statResponse {
