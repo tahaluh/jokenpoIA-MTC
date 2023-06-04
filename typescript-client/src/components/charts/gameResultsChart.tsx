@@ -108,7 +108,7 @@ export const GameResultsChart = ({
     chart: {
       id: "gameResultChart",
       zoom: { enabled: false },
-      toolbar: { show: false },
+      toolbar: { show: true, tools: { download: true } },
       width: "100%",
     },
     xaxis: {
@@ -207,7 +207,8 @@ export const GameResultsChart = ({
       chart: {
         id: "gameResultChart",
         zoom: { enabled: false },
-        toolbar: { show: false },
+        toolbar: { show: true, tools: { download: true } },
+        title: { text: "test" },
       },
       xaxis: {
         labels: {

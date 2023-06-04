@@ -54,7 +54,6 @@ export default class MarkovIA {
   }
 
   private random() {
-    console.log(this.seed);
     var x = Math.sin(this.seed) * 10000;
     this.seed = this.seed + 1;
     return x - Math.floor(x);
