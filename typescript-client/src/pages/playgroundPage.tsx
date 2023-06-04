@@ -8,7 +8,8 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { GameMove, gameResult } from "../utils/markov";
+import MarkovIA, { GameMove, gameResult } from "../utils/markov";
+import LstmIA from "../utils/lstm";
 import { GameResultsChart } from "../components/charts/gameResultsChart";
 
 interface gameRound {
@@ -36,10 +37,12 @@ interface generalReport {
   playerName: string;
 }
 
+type model = "Original" | "Markov1" | "Markov3" | "LSTM";
+
 export default function PlaygroundPage() {
   const [reports, setReports] = useState<generalReport[]>([]);
   const [selectedData, setSelectedData] = useState<number>(-1);
-  const [updateSignal, setUpdateSignal] = useState<boolean>(true);
+  const [selectedModel, setSelectedModel] = useState<model>("Original");
 
   // https://api.github.com/repos/tahaluh/jokenpoIA-MTC/contents/database
 
@@ -82,15 +85,33 @@ export default function PlaygroundPage() {
     setSelectedData(e.target.value);
   };
 
-  const handleSelectModel = (e: any) => {};
-
-  const sendUpdateSignal = () => {
-    setUpdateSignal((prev) => !prev);
+  const handleSelectModel = (e: any) => {
+    setSelectedModel(e.target.value);
   };
 
-  useEffect(() => {
-    sendUpdateSignal();
-  }, [reports, selectedData]);
+  const handleTrainModel = (gameRounds: gameRound[]): gameResult[] => {
+    let iaModel: MarkovIA | LstmIA;
+    let model = selectedModel;
+
+    console.log(`treinando pra ${model}`);
+
+    if (model === "Markov1") {
+      iaModel = new MarkovIA(1);
+    } else if (model === "Markov3") {
+      iaModel = new MarkovIA();
+    } else if (model === "LSTM") {
+      iaModel = new LstmIA(10);
+    } else {
+      console.log("Invalid IA");
+      return [];
+    }
+
+    let gameResult: gameResult[] = gameRounds.map((gameRound) => {
+      return iaModel.play(gameRound.playerMove, gameRound.result).result;
+    });
+
+    return gameResult;
+  };
   return (
     <>
       <Helmet>
@@ -164,143 +185,314 @@ export default function PlaygroundPage() {
                 </Typography>
                 <Select
                   labelId="selectModelLabel"
-                  defaultValue="original"
+                  defaultValue="Original"
                   onChange={handleSelectModel}
                 >
-                  <MenuItem value="original">Original</MenuItem>
-                  <MenuItem value="markov1">Markov1</MenuItem>
-                  <MenuItem value="markov3">Markov3</MenuItem>
-                  <MenuItem value="ltsm">Markov3</MenuItem>
+                  <MenuItem value="Original">Original</MenuItem>
+                  <MenuItem value="Markov1">Markov1</MenuItem>
+                  <MenuItem value="Markov3">Markov3</MenuItem>
+                  <MenuItem value="LSTM">LSTM</MenuItem>
                 </Select>
               </InputLabel>
             </Grid>
-            <Grid
-              item
-              container
-              flexDirection="row"
-              alignItems="center"
-              justifyContent="center"
-              rowGap={10}
-              columnGap={2}
-            >
+            {selectedModel == "Original" && (
               <Grid
                 item
-                xs={12}
                 container
+                flexDirection="row"
+                alignItems="center"
                 justifyContent="center"
-                marginTop={3}
+                rowGap={10}
+                columnGap={2}
               >
-                <Typography variant="h3">Gráficos</Typography>
-              </Grid>
-              <Grid item xs={5.5} container justifyContent="center">
-                <Typography variant="caption">
-                  {`Gráfico da primeira etapa x Markov`}
-                </Typography>
-                <Grid item xs={12} justifyContent="center" alignItems="center">
-                  <GameResultsChart
-                    nOfRounds={
-                      selectedData >= 0
-                        ? reports[selectedData].games[0].stats.nOfRounds
-                        : 500
-                    }
-                    resultsArray={
-                      selectedData >= 0
-                        ? [
-                            reports[selectedData].games[0].rounds.map(
-                              (round) => round.result
-                            ),
-                          ]
-                        : reports.map((report) =>
-                            report.games[0].rounds.map((round) => round.result)
-                          )
-                    }
-                    updateSignal={updateSignal}
-                  />
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  justifyContent="center"
+                  marginTop={3}
+                >
+                  <Typography variant="h3">Gráficos</Typography>
+                </Grid>
+                <Grid item xs={5.5} container justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da primeira etapa x Markov`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[0].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              reports[selectedData].games[0].rounds.map(
+                                (round) => round.result
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              report.games[0].rounds.map(
+                                (round) => round.result
+                              )
+                            )
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da segunda etapa (seja aleatório) x Markov`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[1].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              reports[selectedData].games[1].rounds.map(
+                                (round) => round.result
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              report.games[1].rounds.map(
+                                (round) => round.result
+                              )
+                            )
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da terceira etapa x Markov`}
+                  </Typography>
+
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[2].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              reports[selectedData].games[2].rounds.map(
+                                (round) => round.result
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              report.games[2].rounds.map(
+                                (round) => round.result
+                              )
+                            )
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da quarta etapa x LTSM`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[3].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              reports[selectedData].games[3].rounds.map(
+                                (round) => round.result
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              report.games[3].rounds.map(
+                                (round) => round.result
+                              )
+                            )
+                      }
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
+            )}
+            {selectedModel != "Original" && (
+              <Grid
+                item
+                container
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+                rowGap={10}
+                columnGap={2}
+              >
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  justifyContent="center"
+                  marginTop={3}
+                >
+                  <Typography variant="h3">Gráficos</Typography>
+                </Grid>
+                <Grid item xs={5.5} container justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da primeira etapa x ${selectedModel}`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[0].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              handleTrainModel(
+                                reports[selectedData].games[0].rounds
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              handleTrainModel(report.games[0].rounds)
+                            )
+                      }
+                    />
+                  </Grid>
+                </Grid>
 
-              <Grid item container xs={5.5} justifyContent="center">
-                <Typography variant="caption">
-                  {`Gráfico da segunda etapa (seja aleatório) x Markov`}
-                </Typography>
-                <Grid item xs={12} justifyContent="center" alignItems="center">
-                  <GameResultsChart
-                    nOfRounds={
-                      selectedData >= 0
-                        ? reports[selectedData].games[1].stats.nOfRounds
-                        : 500
-                    }
-                    resultsArray={
-                      selectedData >= 0
-                        ? [
-                            reports[selectedData].games[1].rounds.map(
-                              (round) => round.result
-                            ),
-                          ]
-                        : reports.map((report) =>
-                            report.games[1].rounds.map((round) => round.result)
-                          )
-                    }
-                    updateSignal={updateSignal}
-                  />
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da segunda etapa (seja aleatório) x ${selectedModel}`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[1].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              handleTrainModel(
+                                reports[selectedData].games[1].rounds
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              handleTrainModel(report.games[1].rounds)
+                            )
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da terceira etapa x ${selectedModel}`}
+                  </Typography>
+
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[2].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              handleTrainModel(
+                                reports[selectedData].games[2].rounds
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              handleTrainModel(report.games[2].rounds)
+                            )
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico da quarta etapa x ${selectedModel}`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameResultsChart
+                      nOfRounds={
+                        selectedData >= 0
+                          ? reports[selectedData].games[3].stats.nOfRounds
+                          : 500
+                      }
+                      resultsArray={
+                        selectedData >= 0
+                          ? [
+                              handleTrainModel(
+                                reports[selectedData].games[3].rounds
+                              ),
+                            ]
+                          : reports.map((report) =>
+                              handleTrainModel(report.games[3].rounds)
+                            )
+                      }
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
-
-              <Grid item container xs={5.5} justifyContent="center">
-                <Typography variant="caption">
-                  {`Gráfico da terceira etapa x Markov`}
-                </Typography>
-
-                <Grid item xs={12} justifyContent="center" alignItems="center">
-                  <GameResultsChart
-                    nOfRounds={
-                      selectedData >= 0
-                        ? reports[selectedData].games[2].stats.nOfRounds
-                        : 500
-                    }
-                    resultsArray={
-                      selectedData >= 0
-                        ? [
-                            reports[selectedData].games[2].rounds.map(
-                              (round) => round.result
-                            ),
-                          ]
-                        : reports.map((report) =>
-                            report.games[2].rounds.map((round) => round.result)
-                          )
-                    }
-                    updateSignal={updateSignal}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid item container xs={5.5} justifyContent="center">
-                <Typography variant="caption">
-                  {`Gráfico da quarta etapa x LTSM`}
-                </Typography>
-                <Grid item xs={12} justifyContent="center" alignItems="center">
-                  <GameResultsChart
-                    nOfRounds={
-                      selectedData >= 0
-                        ? reports[selectedData].games[3].stats.nOfRounds
-                        : 500
-                    }
-                    resultsArray={
-                      selectedData >= 0
-                        ? [
-                            reports[selectedData].games[3].rounds.map(
-                              (round) => round.result
-                            ),
-                          ]
-                        : reports.map((report) =>
-                            report.games[3].rounds.map((round) => round.result)
-                          )
-                    }
-                    updateSignal={updateSignal}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
+            )}
           </>
         )}
       </Grid>

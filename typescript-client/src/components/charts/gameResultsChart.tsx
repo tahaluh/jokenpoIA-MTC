@@ -6,7 +6,6 @@ import { gameResult } from "../../utils/markov";
 interface PropsInterface {
   nOfRounds: number;
   resultsArray: gameResult[][];
-  updateSignal: boolean;
 }
 
 interface Coordinates {
@@ -17,7 +16,6 @@ interface Coordinates {
 export const GameResultsChart = ({
   nOfRounds,
   resultsArray,
-  updateSignal,
 }: PropsInterface) => {
   let winLineData: Coordinates[] = [];
   let loseLineData: Coordinates[] = [];
@@ -104,7 +102,7 @@ export const GameResultsChart = ({
       x: data.x,
       y: data.y / resultsArray.length,
     }));
-  }, [updateSignal]);
+  }, [resultsArray]);
 
   const [options, setOptions] = useState<any>({
     chart: {
@@ -260,7 +258,7 @@ export const GameResultsChart = ({
         },
       },
     });
-  }, [updateSignal]);
+  }, [resultsArray]);
 
   return <ReactApexChart options={options} series={series} width="100%" />;
 };
