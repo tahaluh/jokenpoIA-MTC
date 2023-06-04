@@ -1,4 +1,11 @@
-import { Button, Grid, MenuItem, Select, Typography } from "@mui/material";
+import {
+  Button,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { GameMove, gameResult } from "../utils/markov";
@@ -75,13 +82,14 @@ export default function PlaygroundPage() {
     setSelectedData(e.target.value);
   };
 
+  const handleSelectModel = (e: any) => {};
+
   const sendUpdateSignal = () => {
     setUpdateSignal((prev) => !prev);
   };
 
   useEffect(() => {
     sendUpdateSignal();
-    console.log("sinal");
   }, [reports, selectedData]);
   return (
     <>
@@ -122,17 +130,49 @@ export default function PlaygroundPage() {
               justifyContent="center"
               gap={4}
             >
-              <Typography>Média {reports.length}</Typography>
-              <Select defaultValue={-1} onChange={handleSelectData}>
-                <MenuItem value={-1}>Média</MenuItem>
-                {reports.map((report, index) => {
-                  return (
-                    <MenuItem key={index} value={index}>
-                      {report.playerName}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
+              <InputLabel id="selectSubjectLabel">
+                <Typography variant="button" color="black">
+                  Dados em análise:{" "}
+                </Typography>
+                <Select
+                  labelId="selectSubjectLabel"
+                  defaultValue={-1}
+                  onChange={handleSelectData}
+                >
+                  <MenuItem value={-1}>Média</MenuItem>
+                  {reports.map((report, index) => {
+                    return (
+                      <MenuItem key={index} value={index}>
+                        {report.playerName}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </InputLabel>
+            </Grid>
+            <Grid
+              item
+              container
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              gap={4}
+            >
+              <InputLabel id="selectModelLabel">
+                <Typography variant="button" color="black">
+                  Modelo de predição:
+                </Typography>
+                <Select
+                  labelId="selectModelLabel"
+                  defaultValue="original"
+                  onChange={handleSelectModel}
+                >
+                  <MenuItem value="original">Original</MenuItem>
+                  <MenuItem value="markov1">Markov1</MenuItem>
+                  <MenuItem value="markov3">Markov3</MenuItem>
+                  <MenuItem value="ltsm">Markov3</MenuItem>
+                </Select>
+              </InputLabel>
             </Grid>
             <Grid
               item
@@ -140,24 +180,125 @@ export default function PlaygroundPage() {
               flexDirection="row"
               alignItems="center"
               justifyContent="center"
-              gap={4}
+              rowGap={10}
+              columnGap={2}
             >
-              <Grid item container xs={12} minHeight={"40vh"}>
-                <GameResultsChart
-                  nOfRounds={
-                    selectedData >= 0
-                      ? reports[selectedData].games[0].stats.nOfRounds
-                      : 0
-                  }
-                  results={
-                    selectedData >= 0
-                      ? reports[selectedData].games[0].rounds.map(
-                          (round) => round.result
-                        )
-                      : []
-                  }
-                  updateSignal={updateSignal}
-                />
+              <Grid
+                item
+                xs={12}
+                container
+                justifyContent="center"
+                marginTop={3}
+              >
+                <Typography variant="h3">Gráficos</Typography>
+              </Grid>
+              <Grid item xs={5.5} container justifyContent="center">
+                <Typography variant="caption">
+                  {`Gráfico da primeira etapa x Markov`}
+                </Typography>
+                <Grid item xs={12} justifyContent="center" alignItems="center">
+                  <GameResultsChart
+                    nOfRounds={
+                      selectedData >= 0
+                        ? reports[selectedData].games[0].stats.nOfRounds
+                        : 500
+                    }
+                    resultsArray={
+                      selectedData >= 0
+                        ? [
+                            reports[selectedData].games[0].rounds.map(
+                              (round) => round.result
+                            ),
+                          ]
+                        : reports.map((report) =>
+                            report.games[0].rounds.map((round) => round.result)
+                          )
+                    }
+                    updateSignal={updateSignal}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid item container xs={5.5} justifyContent="center">
+                <Typography variant="caption">
+                  {`Gráfico da segunda etapa (seja aleatório) x Markov`}
+                </Typography>
+                <Grid item xs={12} justifyContent="center" alignItems="center">
+                  <GameResultsChart
+                    nOfRounds={
+                      selectedData >= 0
+                        ? reports[selectedData].games[1].stats.nOfRounds
+                        : 500
+                    }
+                    resultsArray={
+                      selectedData >= 0
+                        ? [
+                            reports[selectedData].games[1].rounds.map(
+                              (round) => round.result
+                            ),
+                          ]
+                        : reports.map((report) =>
+                            report.games[1].rounds.map((round) => round.result)
+                          )
+                    }
+                    updateSignal={updateSignal}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid item container xs={5.5} justifyContent="center">
+                <Typography variant="caption">
+                  {`Gráfico da terceira etapa x Markov`}
+                </Typography>
+
+                <Grid item xs={12} justifyContent="center" alignItems="center">
+                  <GameResultsChart
+                    nOfRounds={
+                      selectedData >= 0
+                        ? reports[selectedData].games[2].stats.nOfRounds
+                        : 500
+                    }
+                    resultsArray={
+                      selectedData >= 0
+                        ? [
+                            reports[selectedData].games[2].rounds.map(
+                              (round) => round.result
+                            ),
+                          ]
+                        : reports.map((report) =>
+                            report.games[2].rounds.map((round) => round.result)
+                          )
+                    }
+                    updateSignal={updateSignal}
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid item container xs={5.5} justifyContent="center">
+                <Typography variant="caption">
+                  {`Gráfico da quarta etapa x LTSM`}
+                </Typography>
+                <Grid item xs={12} justifyContent="center" alignItems="center">
+                  <GameResultsChart
+                    nOfRounds={
+                      selectedData >= 0
+                        ? reports[selectedData].games[3].stats.nOfRounds
+                        : 500
+                    }
+                    resultsArray={
+                      selectedData >= 0
+                        ? [
+                            reports[selectedData].games[3].rounds.map(
+                              (round) => round.result
+                            ),
+                          ]
+                        : reports.map((report) =>
+                            report.games[3].rounds.map((round) => round.result)
+                          )
+                    }
+                    updateSignal={updateSignal}
+                  />
+                </Grid>
               </Grid>
             </Grid>
           </>

@@ -5,7 +5,7 @@ import { gameResult } from "../../utils/markov";
 
 interface PropsInterface {
   nOfRounds: number;
-  results: gameResult[];
+  resultsArray: gameResult[][];
   updateSignal: boolean;
 }
 
@@ -16,53 +16,94 @@ interface Coordinates {
 
 export const GameResultsChart = ({
   nOfRounds,
-  results,
+  resultsArray,
   updateSignal,
 }: PropsInterface) => {
   let winLineData: Coordinates[] = [];
   let loseLineData: Coordinates[] = [];
   let tieLineData: Coordinates[] = [];
-  console.log("renderizou gamesulrtasda");
 
   useEffect(() => {
     let tempWinLineData: Coordinates[] = [];
-    results.forEach((value, index) => {
-      if (index == 0 || index == results.length - 1 || value == 1)
-        tempWinLineData.push({
-          x: index,
-          y:
-            tempWinLineData.length > 0
-              ? tempWinLineData[tempWinLineData.length - 1].y + 1
-              : 0,
-        });
-    }, 0);
-    winLineData = tempWinLineData;
-
     let tempLoseLineData: Coordinates[] = [];
-    results.forEach((value, index) => {
-      if (index == 0 || index == results.length - 1 || value == -1)
-        tempLoseLineData.push({
-          x: index,
-          y:
-            tempLoseLineData.length > 0
-              ? tempLoseLineData[tempLoseLineData.length - 1].y + 1
-              : 0,
-        });
-    }, 0);
-    loseLineData = tempLoseLineData;
-
     let tempTieLineData: Coordinates[] = [];
-    results.forEach((value, index) => {
-      if (index == 0 || index == results.length - 1 || value == 0)
-        tempTieLineData.push({
-          x: index,
-          y:
-            tempTieLineData.length > 0
-              ? tempTieLineData[tempTieLineData.length - 1].y + 1
-              : 0,
-        });
-    }, 0);
-    tieLineData = tempTieLineData;
+
+    resultsArray.forEach((results, resultsIndex) => {
+      let somou = 0;
+      results.forEach((value, index) => {
+        if (resultsIndex == 0) {
+          tempWinLineData.push({
+            x: index,
+            y:
+              value == 1
+                ? index > 0
+                  ? tempWinLineData[tempWinLineData.length - 1].y + 1
+                  : 1
+                : index > 0
+                ? tempWinLineData[tempWinLineData.length - 1].y
+                : 0,
+          });
+        } else {
+          if (value == 1) {
+            somou += 1;
+          }
+          tempWinLineData[index].y = tempWinLineData[index].y + somou;
+        }
+      });
+
+      somou = 0;
+      results.forEach((value, index) => {
+        if (resultsIndex == 0) {
+          tempLoseLineData.push({
+            x: index,
+            y:
+              tempLoseLineData.length > 0
+                ? value == -1
+                  ? tempLoseLineData[tempLoseLineData.length - 1].y + 1
+                  : tempLoseLineData[tempLoseLineData.length - 1].y
+                : 0,
+          });
+        } else {
+          if (value == -1) {
+            somou += 1;
+          }
+          tempLoseLineData[index].y = tempLoseLineData[index].y + somou;
+        }
+      });
+
+      somou = 0;
+      results.forEach((value, index) => {
+        if (resultsIndex == 0) {
+          tempTieLineData.push({
+            x: index,
+            y:
+              tempTieLineData.length > 0
+                ? value == 0
+                  ? tempTieLineData[tempTieLineData.length - 1].y + 1
+                  : tempTieLineData[tempTieLineData.length - 1].y
+                : 0,
+          });
+        } else {
+          if (value == 0) {
+            somou += 1;
+          }
+          tempTieLineData[index].y = tempTieLineData[index].y + somou;
+        }
+      });
+    });
+
+    winLineData = tempWinLineData.map((data) => ({
+      x: data.x,
+      y: data.y / resultsArray.length,
+    }));
+    loseLineData = tempLoseLineData.map((data) => ({
+      x: data.x,
+      y: data.y / resultsArray.length,
+    }));
+    tieLineData = tempTieLineData.map((data) => ({
+      x: data.x,
+      y: data.y / resultsArray.length,
+    }));
   }, [updateSignal]);
 
   const [options, setOptions] = useState<any>({
@@ -221,5 +262,5 @@ export const GameResultsChart = ({
     });
   }, [updateSignal]);
 
-  return <ReactApexChart options={options} series={series} width={1000} />;
+  return <ReactApexChart options={options} series={series} width="100%" />;
 };
