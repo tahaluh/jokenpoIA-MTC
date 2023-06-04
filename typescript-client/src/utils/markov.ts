@@ -45,13 +45,22 @@ export default class MarkovIA {
 
   nOfMatrix: nOfMatrix = 3;
 
+  seed = 42;
+
   constructor(nOfMatrix?: nOfMatrix) {
     if (nOfMatrix) {
       this.nOfMatrix = nOfMatrix;
     }
   }
 
-  public play(playerMove: GameMove): playResponse {
+  private random() {
+    console.log(this.seed);
+    var x = Math.sin(this.seed) * 10000;
+    this.seed = this.seed + 1;
+    return x - Math.floor(x);
+  }
+
+  public play(playerMove: GameMove, gameResult?: gameResult): playResponse {
     if (this.nOfRounds > 0) {
       this.updateMatrix(playerMove);
       this.calcProbabilities();
@@ -60,7 +69,8 @@ export default class MarkovIA {
     let iaMove = this.calcIAMove();
     let result = this.checkResult(playerMove, iaMove);
     this.prevPlayerMove = playerMove;
-    this.prevResult = this.nOfMatrix == 3 ? result : 1;
+    this.prevResult =
+      this.nOfMatrix == 3 ? (gameResult ? gameResult : result) : 1;
     return { result };
   }
   public stats(): statResponse {
@@ -76,7 +86,7 @@ export default class MarkovIA {
   }
 
   private calcIAMove(): GameMove {
-    let randNumber = Math.floor(Math.random() * 100) + 1;
+    let randNumber = Math.floor(this.random() * 100) + 1;
 
     let rangeR = this.probabilitiesRPS[0] * 100;
     let RangeP = this.probabilitiesRPS[1] * 100;
