@@ -12,6 +12,7 @@ import MarkovIA, { GameMove, gameResult } from "../utils/markov";
 import LstmIA from "../utils/lstm";
 import { GameResultsChart } from "../components/charts/gameResultsChart";
 import Jokenpo from "../utils/jokenpo";
+import { GameSequencesChart } from "../components/charts/gameSequencesChart";
 
 interface gameRound {
   playerMove: GameMove;
@@ -123,9 +124,7 @@ export default function PlaygroundPage() {
       });
     });
 
-    console.log(jokenpo.stats(5));
-
-    return JSON.stringify("jokenpo.stats()");
+    return jokenpo.stats(5);
   };
 
   return (
@@ -541,11 +540,13 @@ export default function PlaygroundPage() {
                     justifyContent="center"
                     alignItems="center"
                   >
-                    {handleGetSequences(
-                      selectedData >= 0
-                        ? [reports[selectedData].games[0].rounds]
-                        : reports.map((report) => report.games[0].rounds)
-                    )}
+                    <GameSequencesChart
+                      sequencesStats={handleGetSequences(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[0].rounds]
+                          : reports.map((report) => report.games[0].rounds)
+                      )}
+                    />
                   </Grid>
                 </Grid>
 
@@ -558,7 +559,15 @@ export default function PlaygroundPage() {
                     xs={12}
                     justifyContent="center"
                     alignItems="center"
-                  ></Grid>
+                  >
+                    <GameSequencesChart
+                      sequencesStats={handleGetSequences(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[1].rounds]
+                          : reports.map((report) => report.games[1].rounds)
+                      )}
+                    />
+                  </Grid>
                 </Grid>
 
                 <Grid item container xs={5.5} justifyContent="center">
@@ -571,7 +580,15 @@ export default function PlaygroundPage() {
                     xs={12}
                     justifyContent="center"
                     alignItems="center"
-                  ></Grid>
+                  >
+                    <GameSequencesChart
+                      sequencesStats={handleGetSequences(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[2].rounds]
+                          : reports.map((report) => report.games[2].rounds)
+                      )}
+                    />
+                  </Grid>
                 </Grid>
 
                 <Grid item container xs={5.5} justifyContent="center">
@@ -583,7 +600,15 @@ export default function PlaygroundPage() {
                     xs={12}
                     justifyContent="center"
                     alignItems="center"
-                  ></Grid>
+                  >
+                    <GameSequencesChart
+                      sequencesStats={handleGetSequences(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[3].rounds]
+                          : reports.map((report) => report.games[3].rounds)
+                      )}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
             )}

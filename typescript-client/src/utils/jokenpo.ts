@@ -4,6 +4,22 @@ type stringGameMove = "r" | "p" | "s";
 
 type memorySequence = { [key: string]: { [key: string]: number } };
 
+export interface sequencesStats {
+  prevSequence: string;
+  sequenceLength: number;
+  occurrences: {
+    r: number;
+    p: number;
+    s: number;
+  };
+  probabilities: {
+    r: number;
+    p: number;
+    s: number;
+  };
+  total: number;
+}
+
 export default class Jokenpo {
   prevMoves: stringGameMove[] = [];
   memorySize: number;
@@ -50,7 +66,7 @@ export default class Jokenpo {
     return playerMove == 0 ? "r" : playerMove == 1 ? "p" : "s";
   }
 
-  public stats(minOccurrences: number) {
+  public stats(minOccurrences: number): sequencesStats[] {
     const sequencesArray = Object.entries(this.memorySequences);
 
     const sequenceStats = sequencesArray
@@ -81,7 +97,7 @@ export default class Jokenpo {
         return actualHigherProbability > prevHigherProbability ? -1 : 1;
       });
 
-    const response = [];
+    const response: sequencesStats[] = [];
 
     for (let i = 1; i <= this.memorySize; i++) {
       const findSequence = sequenceStats.find(
