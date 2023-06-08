@@ -21,7 +21,9 @@ export const GameSequencesChart = ({ sequencesStats }: PropsInterface) => {
     let tempScissors: number[] = [];
     let tempCategories: string[] = [];
     sequencesStats.forEach((sequenceStats) => {
-      tempCategories.push(sequenceStats.prevSequence);
+      tempCategories.push(
+        sequenceStats.prevSequence + ` - (${sequenceStats.total})`
+      );
       tempRock.push(sequenceStats.occurrences.r);
       tempPaper.push(sequenceStats.occurrences.p);
       tempScissors.push(sequenceStats.occurrences.s);
