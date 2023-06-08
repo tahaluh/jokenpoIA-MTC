@@ -11,6 +11,7 @@ import { Helmet } from "react-helmet-async";
 import MarkovIA, { GameMove, gameResult } from "../utils/markov";
 import LstmIA from "../utils/lstm";
 import { GameResultsChart } from "../components/charts/gameResultsChart";
+import Jokenpo from "../utils/jokenpo";
 
 interface gameRound {
   playerMove: GameMove;
@@ -112,6 +113,21 @@ export default function PlaygroundPage() {
 
     return gameResult;
   };
+
+  const handleGetSequences = (games: gameRound[][]) => {
+    const jokenpo = new Jokenpo(5);
+
+    games.forEach((gameRounds) => {
+      gameRounds.forEach((gameRound) => {
+        jokenpo.play(gameRound.playerMove);
+      });
+    });
+
+    console.log(jokenpo.stats(5));
+
+    return JSON.stringify("jokenpo.stats()");
+  };
+
   return (
     <>
       <Helmet>
@@ -212,7 +228,9 @@ export default function PlaygroundPage() {
                   justifyContent="center"
                   marginTop={3}
                 >
-                  <Typography variant="h3">Gráficos</Typography>
+                  <Typography variant="h3">
+                    Gráficos de Resultados por Partida
+                  </Typography>
                 </Grid>
                 <Grid item xs={5.5} container justifyContent="center">
                   <Typography variant="caption">
@@ -490,6 +508,82 @@ export default function PlaygroundPage() {
                       }
                     />
                   </Grid>
+                </Grid>
+              </Grid>
+            )}
+
+            {true && (
+              <Grid
+                item
+                container
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+                rowGap={10}
+                columnGap={2}
+              >
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  justifyContent="center"
+                  marginTop={3}
+                >
+                  <Typography variant="h3">Gráficos de sequências</Typography>
+                </Grid>
+                <Grid item xs={5.5} container justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de sequências da primeira etapa`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    {handleGetSequences(
+                      selectedData >= 0
+                        ? [reports[selectedData].games[0].rounds]
+                        : reports.map((report) => report.games[0].rounds)
+                    )}
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de sequências da segunda etapa`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  ></Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de sequências da terceira etapa`}
+                  </Typography>
+
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  ></Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de sequências da quarta etapa`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  ></Grid>
                 </Grid>
               </Grid>
             )}
