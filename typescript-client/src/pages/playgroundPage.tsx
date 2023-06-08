@@ -8,11 +8,17 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import MarkovIA, { GameMove, gameResult } from "../utils/markov";
+import MarkovIA, {
+  GameMove,
+  TransitionMatrixResponse,
+  gameResult,
+  stringGameMove,
+} from "../utils/markov";
 import LstmIA from "../utils/lstm";
 import { GameResultsChart } from "../components/charts/gameResultsChart";
 import Jokenpo from "../utils/jokenpo";
 import { GameSequencesChart } from "../components/charts/gameSequencesChart";
+import { GameTransitionMatrixChart } from "../components/charts/gameTransitionMatrixChart";
 
 interface gameRound {
   playerMove: GameMove;
@@ -95,8 +101,6 @@ export default function PlaygroundPage() {
     let iaModel: MarkovIA | LstmIA;
     let model = selectedModel;
 
-    console.log(`treinando pra ${model}`);
-
     if (model === "Markov1") {
       iaModel = new MarkovIA(1);
     } else if (model === "Markov3") {
@@ -125,6 +129,61 @@ export default function PlaygroundPage() {
     });
 
     return jokenpo.stats(5);
+  };
+
+  const handleGetTransitionMatrix = (
+    games: gameRound[][]
+  ): TransitionMatrixResponse => {
+    let matrixArray: TransitionMatrixResponse[] = [];
+
+    games.forEach((gameRounds) => {
+      let markov3 = new MarkovIA(3);
+      gameRounds.forEach((gameRound) => {
+        markov3.play(gameRound.playerMove);
+      });
+      matrixArray.push(markov3.getMatrix());
+    });
+
+    let resultMatrix: TransitionMatrixResponse = {
+      win: {
+        r: { r: 0, p: 0, s: 0 },
+        p: { r: 0, p: 0, s: 0 },
+        s: { r: 0, p: 0, s: 0 },
+      },
+      lose: {
+        r: { r: 0, p: 0, s: 0 },
+        p: { r: 0, p: 0, s: 0 },
+        s: { r: 0, p: 0, s: 0 },
+      },
+      tie: {
+        r: { r: 0, p: 0, s: 0 },
+        p: { r: 0, p: 0, s: 0 },
+        s: { r: 0, p: 0, s: 0 },
+      },
+    };
+
+    matrixArray.forEach((matrix) => {
+      Object.keys(matrix).forEach((resultKey) => {
+        Object.keys(
+          matrix[resultKey as keyof TransitionMatrixResponse]
+        ).forEach((prevMove) => {
+          Object.keys(
+            resultMatrix[resultKey as keyof TransitionMatrixResponse][
+              prevMove as stringGameMove
+            ]
+          ).forEach((posMove) => {
+            resultMatrix[resultKey as keyof TransitionMatrixResponse][
+              prevMove as stringGameMove
+            ][posMove as stringGameMove] +=
+              matrix[resultKey as keyof TransitionMatrixResponse][
+                prevMove as stringGameMove
+              ][posMove as stringGameMove] / 1; //matrixArray.length;
+          });
+        });
+      });
+    });
+
+    return resultMatrix;
   };
 
   return (
@@ -603,6 +662,108 @@ export default function PlaygroundPage() {
                   >
                     <GameSequencesChart
                       sequencesStats={handleGetSequences(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[3].rounds]
+                          : reports.map((report) => report.games[3].rounds)
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+            )}
+
+            {true && (
+              <Grid
+                item
+                container
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+                rowGap={10}
+                columnGap={2}
+              >
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  justifyContent="center"
+                  marginTop={3}
+                >
+                  <Typography variant="h3">Gráficos de transições</Typography>
+                </Grid>
+                <Grid item xs={5.5} container justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de transições da primeira etapa`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameTransitionMatrixChart
+                      transitionMatrix={handleGetTransitionMatrix(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[0].rounds]
+                          : reports.map((report) => report.games[0].rounds)
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de transições da segunda etapa`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameTransitionMatrixChart
+                      transitionMatrix={handleGetTransitionMatrix(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[1].rounds]
+                          : reports.map((report) => report.games[1].rounds)
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de transições da terceira etapa`}
+                  </Typography>
+
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameTransitionMatrixChart
+                      transitionMatrix={handleGetTransitionMatrix(
+                        selectedData >= 0
+                          ? [reports[selectedData].games[2].rounds]
+                          : reports.map((report) => report.games[2].rounds)
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid item container xs={5.5} justifyContent="center">
+                  <Typography variant="caption">
+                    {`Gráfico de transições da quarta etapa`}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <GameTransitionMatrixChart
+                      transitionMatrix={handleGetTransitionMatrix(
                         selectedData >= 0
                           ? [reports[selectedData].games[3].rounds]
                           : reports.map((report) => report.games[3].rounds)

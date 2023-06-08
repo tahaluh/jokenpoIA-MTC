@@ -6,9 +6,16 @@ interface probabilitiesRPS {
 
 export type GameMove = 0 | 1 | 2;
 export type gameResult = -1 | 0 | 1;
+export type stringGameMove = "r" | "p" | "s";
 
 type nOfMatrix = 1 | 3;
 type TransitionMatrix = number[][];
+
+export type TransitionMatrixResponse = {
+  [key in "win" | "lose" | "tie"]: {
+    [key in "r" | "p" | "s"]: { [key in "r" | "p" | "s"]: number };
+  };
+};
 
 interface playResponse {
   result: gameResult;
@@ -82,6 +89,50 @@ export default class MarkovIA {
       iaWinRate: this.nOfLoses / this.nOfRounds,
       tieRate: this.nOfTies / this.nOfRounds,
     };
+  }
+
+  public getMatrix() {
+    const matrixArr =
+      this.nOfMatrix == 1
+        ? [this.WinTransitionMatrix]
+        : [
+            this.WinTransitionMatrix,
+            this.LoseTransitionMatrix,
+            this.TieTransitionMatrix,
+          ];
+
+    const result: TransitionMatrixResponse = {
+      win: {
+        r: { r: 0, p: 0, s: 0 },
+        p: { r: 0, p: 0, s: 0 },
+        s: { r: 0, p: 0, s: 0 },
+      },
+      lose: {
+        r: { r: 0, p: 0, s: 0 },
+        p: { r: 0, p: 0, s: 0 },
+        s: { r: 0, p: 0, s: 0 },
+      },
+      tie: {
+        r: { r: 0, p: 0, s: 0 },
+        p: { r: 0, p: 0, s: 0 },
+        s: { r: 0, p: 0, s: 0 },
+      },
+    };
+    matrixArr.forEach((transitionMatrix, index) => {
+      let key = index == 0 ? "win" : index == 1 ? "lose" : "tie";
+
+      transitionMatrix.forEach((transition, index) => {
+        let prevMove: stringGameMove =
+          index == 0 ? "r" : index == 1 ? "p" : "s";
+        transition.forEach((actualMove, index) => {
+          let move: stringGameMove = index == 0 ? "r" : index == 1 ? "p" : "s";
+          result[key as keyof TransitionMatrixResponse][prevMove][move] =
+            actualMove;
+        });
+      });
+    });
+
+    return result;
   }
 
   private calcIAMove(): GameMove {
