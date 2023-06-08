@@ -46,7 +46,7 @@ export default function PlaygroundPage() {
 
   // https://api.github.com/repos/tahaluh/jokenpoIA-MTC/contents/database
 
-  const handleImportDate = async () => {
+  const handleImportData = async () => {
     const response = await (
       await fetch(
         "https://api.github.com/repos/tahaluh/jokenpoIA-MTC/contents/database",
@@ -136,7 +136,7 @@ export default function PlaygroundPage() {
           <Typography>
             Total de relatórios importados: {reports.length}
           </Typography>
-          <Button variant="outlined" size="large" onClick={handleImportDate}>
+          <Button variant="outlined" size="large" onClick={handleImportData}>
             Importar arquivos JSON
           </Button>
         </Grid>
